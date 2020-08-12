@@ -28,78 +28,73 @@ public class RouletteCasinoApplication {
      * */
     public static class GamingSession extends TimerTask {
         public void run() {
+            // declare variables
             DecimalFormat df2 = new DecimalFormat("#.##");
             Scanner sc = new Scanner(System.in);
-
+            String[] gamingDataArr = new String[4];
+            String status = "";
+            double winAmount = 0.0;
+            String playerName = "";
+            String betOpt = "";
+            double betAmount = 0.0;
             int rndNumber = getRanWinNumber();
-            GamingData gamingData = new GamingData();
-            ArrayList<GamingData> gamingDataList = new ArrayList<>();
 
+            // Adding input values to array
+            for (int i = 0; i < gamingDataArr.length; i++){
+                System.out.print("enter Name, bet option(1-36) OR (EVEN/ODD) and Bet amount: ");
+                gamingDataArr[i] = sc.nextLine().trim();
+            }
+
+            // Writing input value to a file
             try {
-                Scanner scan = new Scanner(new File("data.txt"));
-                while(scan.hasNextLine()){
-                    System.out.println(scan.nextLine());
+                PrintWriter scanFile = new PrintWriter("data.txt");
+                for (String s : gamingDataArr) {
+                    scanFile.println(s);
                 }
+                System.out.println();
+                scanFile.close();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
 
-            // Get details from the player
-            System.out.print("enter play name: ");
-            String name = sc.nextLine();
-            System.out.print("enter bet option(1-36) OR (EVEN/ODD): ");
-            String betOpt = sc.nextLine();
-            System.out.print("enter bet amount: ");
-            double betAmount = sc.nextDouble();
-
-            // Get set player details
-            gamingData.setName(name);
-            gamingData.setBetOption(betOpt);
-            gamingData.setBetAmount(betAmount);
-
-            // String[] attributes = line.split(",");
-
-            if (betOpt.matches("[0-9]+")) {
-                int temp = Integer.parseInt(betOpt);
-                if (temp == rndNumber && rndNumber % 2 == 0) {
-                    gamingData.setStatus("WIN");
-                } else if (temp == rndNumber) {
-                    gamingData.setStatus("WIN");
-                } else {
-                    gamingData.setWinAmount(0);
-                    gamingData.setStatus("LOST");
-                }
-                gamingData.setWinAmount(36 * betAmount);
-            } else if (rndNumber % 2 == 0 && betOpt.contains("EVEN")) {
-                gamingData.setStatus("WIN");
-                gamingData.setWinAmount(2 * betAmount);
-            } else if (rndNumber % 2 != 0 && betOpt.contains("ODD")) {
-                gamingData.setStatus("WIN");
-                gamingData.setWinAmount(2 * betAmount);
-            } else {
-                gamingData.setStatus("LOST");
-                gamingData.setWinAmount(0);
-                System.out.println("LOST");
-            }
-            // Add player inputs to a list
-            gamingDataList.add(gamingData);
-
-            try {
-                FileWriter file = new FileWriter("data.txt");
-                for (GamingData gData : gamingDataList) {
-                    file.write(gData.toString());
-                    file.close();
-                }
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-
+            // print winning number
             System.out.println("Number: " + rndNumber);
-            System.out.println("-----");
-            System.out.println("Player      Bet     Outcome     Winnings");
-            for (GamingData i : gamingDataList) {
-                System.out.println(i.getName() + "        " + i.getBetOption() + "      " +
-                        gamingData.getStatus() + "        " + df2.format(gamingData.getWinAmount()));
+            System.out.println("- - - ");
+
+            // print table header
+            System.out.printf("%10s %10s %10s %10s %n","Player", "Bet","Outcome","Winnings");
+
+            // process the data and cacluations
+            for (int i = 0; i < gamingDataArr.length; i++) {
+                String[] betDetails = gamingDataArr[i].split(" ");
+                 playerName = betDetails[0].trim();
+                 betOpt = betDetails[1].trim();
+                 betAmount = Double.parseDouble(betDetails[2].trim());
+
+
+                if (betOpt.matches("[0-9]+")) {
+                    int temp = Integer.parseInt(betOpt);
+                    if (temp == rndNumber && rndNumber % 2 == 0) {
+                        status = "WIN";
+                    } else if (temp == rndNumber) {
+                        status = "WIN";
+                    } else {
+                        status = "LOST";
+                    }
+                    winAmount = 36 * betAmount;
+                }else if (rndNumber % 2 == 0 && betOpt.contains("EVEN")) {
+                    status = "WIN";
+                    winAmount = (2 * betAmount);
+                } else if (rndNumber % 2 != 0 && betOpt.contains("ODD")) {
+                    status = "WIN";
+                    winAmount = (2 * betAmount);
+                } else {
+                    status = "LOST";
+                    winAmount = 0.0;
+                }
+
+                // print results
+                System.out.printf("%10s %10s %10s %10s %n", playerName,betOpt,status,df2.format(winAmount));
             }
         }
     }
