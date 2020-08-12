@@ -92,9 +92,33 @@ public class RouletteCasinoApplication {
                     status = "LOST";
                     winAmount = 0.0;
                 }
-
                 // print results
                 System.out.printf("%10s %10s %10s %10s %n", playerName,betOpt,status,df2.format(winAmount));
+
+                // show players who won the bet
+                try {
+                    File file = new File("data.txt");
+                    Scanner scn = new Scanner(file);
+                    while(scn.hasNext()){
+                        String[] betWon = gamingDataArr[i].split(",");
+                        String name = scn.next();
+                        String betOption = scn.next();
+                        double betAmt = Double.parseDouble(scn.next());
+                        double totAmtWin = 0;
+                        int totalBetWin = 0;
+
+                        if (betOption.contains("WIN")) {
+                            totalBetWin++;
+                            totAmtWin =  betAmt + (betAmt * totalBetWin );
+                            System.out.printf(name, totalBetWin, totAmtWin);
+                        }
+
+                    }
+                    scn.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+
             }
         }
     }
